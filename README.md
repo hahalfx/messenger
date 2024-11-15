@@ -15,6 +15,7 @@
 
 1. 包结构
 
+```
 com.example.notification
 ├── controller
 │   ├── MessageTemplateController.java
@@ -36,6 +37,9 @@ com.example.notification
 │   └── FunctionComputeConfig.java
 └── utils
     └── MessageFormatter.java
+```
+
+
 
 2. Model 层
 
@@ -125,3 +129,17 @@ com.example.notification
 六、总结
 
 通过清晰的分层和模块化设计，可以实现消息通知微服务的核心功能。将服务迁移至阿里云函数计算后，需要关注无服务器架构的特性，进行相应的代码和配置调整。上述代码结构提供了一个基础的框架，具体实现中可以根据实际需求进行细化和扩展。
+
+
+
+## RabbitMQ
+
+| 队列名      | 绑定键      |
+| ----------- | ----------- |
+| feishuQueue | send.feishu |
+| emailQueue  | send.email  |
+| smsQueue    | send.sms    |
+| netQueue    | send.net    |
+| otherQueue  | send.other  |
+
+DirectExchange

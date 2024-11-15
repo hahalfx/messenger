@@ -1,24 +1,16 @@
 package com.projectgp.messenger.model;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.projectgp.messenger.config.JSONConverter;
 import lombok.Data;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @TableName("message_template")
 public class MessageTemplate {
-
-    private static final Logger logger = LoggerFactory.getLogger(MessageTemplate.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // 主键ID，自动生成
     @TableId(type = IdType.AUTO)
@@ -60,43 +52,15 @@ public class MessageTemplate {
     // 将 placeholders 序列化为 JSON 字符串
     public void setPlaceholders(List<String> placeholders) {
         this.placeholders = placeholders;
-        this.placeholdersJson = serializePlaceholders(placeholders);
+        this.placeholdersJson = JSONConverter.serializeListtoJsonString(placeholders);
     }
 
     // 从 JSON 字符串反序列化为 List
     public List<String> getPlaceholders() {
         if (this.placeholders == null && this.placeholdersJson != null) {
-            this.placeholders = deserializePlaceholders(this.placeholdersJson);
+            this.placeholders = JSONConverter.deserializeJsonStringtoList(this.placeholdersJson);
         }
         return this.placeholders;
     }
 
-    // 序列化方法
-    private String serializePlaceholders(List<String> placeholders) {
-        try {
-            return objectMapper.writeValueAsString(placeholders);
-        } catch (Exception e) {
-            logger.error("序列化占位符列表时发生错误", e);
-            return null;
-        }
-    }
-
-    // 反序列化方法
-    private List<String> deserializePlaceholders(String json) {
-        try {
-            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
-        } catch (Exception e) {
-            logger.error("反序列化占位符列表时发生错误", e);
-            return new ArrayList<>();
-        }
-    }
-
-    // 渲染模板方法
-    public String render(Map<String, Object> variables) {
-        String renderedContent = content;
-        for (Map.Entry<String, Object> entry : variables.entrySet()) {
-            renderedContent = renderedContent.replace("{" + entry.getKey() + "}", entry.getValue().toString());
-        }
-        return renderedContent;
-    }
 }

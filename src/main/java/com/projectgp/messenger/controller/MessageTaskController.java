@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projectgp.messenger.model.MessageTask;
+import com.projectgp.messenger.service.MessageSendService;
 import com.projectgp.messenger.service.MessageTaskService;
 
 
@@ -21,10 +22,19 @@ public class MessageTaskController {
     @Autowired
     public MessageTaskService messageTasksService;
 
+    @Autowired
+    public MessageSendService messageSendService;
+
     @PostMapping("/create")
     public String createTask(@ModelAttribute MessageTask messageTask) {
 
         messageTasksService.createMessageTask(messageTask);
+        // 判断是否为立即发送
+        if (messageTask.getTimeType().equals("IMMEDIATE")) {
+            // 调用消息发送服务
+            System.out.println("调用了消息发送服务");
+            messageSendService.sendMessage(messageTask);
+        }
         return "New Task has been successfully Created with id:"+ messageTask.getTaskId();
     }
 

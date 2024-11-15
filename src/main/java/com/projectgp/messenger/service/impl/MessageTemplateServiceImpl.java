@@ -1,4 +1,6 @@
 package com.projectgp.messenger.service.impl;
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,5 +38,10 @@ public class MessageTemplateServiceImpl extends ServiceImpl<MessageTemplateMappe
     @Override
     public MessageTemplate getMessageTemplateById(long Id) {
         return messageTemplateMapper.selectById(Id);
+    }
+
+    @Override
+    public ArrayList<MessageTemplate> getAllMessageTemplate() {
+        return (ArrayList<MessageTemplate>)messageTemplateMapper.selectList(null);
     }
 }

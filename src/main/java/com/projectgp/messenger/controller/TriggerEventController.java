@@ -1,5 +1,7 @@
 package com.projectgp.messenger.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +42,11 @@ public class TriggerEventController {
     @GetMapping("/find")
     public TriggerEvent getTriggerEventById(Long eventId){
         return triggerEventService.getTriggerEventById(eventId);
+    }
+
+    @GetMapping("findall")
+    public ArrayList<TriggerEvent> getAllTriggerEvent() {
+         return triggerEventService.getAllTriggerEvent();
     }
     
 }

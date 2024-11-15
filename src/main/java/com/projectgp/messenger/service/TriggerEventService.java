@@ -1,5 +1,7 @@
 package com.projectgp.messenger.service;
 
+import java.util.ArrayList;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.projectgp.messenger.model.TriggerEvent;
 
@@ -12,5 +14,7 @@ public interface TriggerEventService extends IService<TriggerEvent>{
     public void updateTriggerEvent(TriggerEvent triggerEvent);
     // 查询消息模版
     public TriggerEvent getTriggerEventById(long Id);
+
+    public ArrayList<TriggerEvent> getAllTriggerEvent();
     
 }

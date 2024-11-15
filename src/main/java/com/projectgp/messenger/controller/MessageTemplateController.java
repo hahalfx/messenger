@@ -1,5 +1,7 @@
 package com.projectgp.messenger.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.projectgp.messenger.model.MessageTemplate;
 import com.projectgp.messenger.service.MessageTemplateService;
 import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -45,11 +48,18 @@ public class MessageTemplateController {
         return "successfully updated a message template id:" + messageTemplate.getId()+ "\n";
     }
 
-    @GetMapping("/get")
+    @GetMapping("/find")
     public MessageTemplate getmessagetemplate(long id){
 
         return messageTemplateservice.getMessageTemplateById(id);
     }
+
+    @GetMapping("/findall")
+    public ArrayList<MessageTemplate> getallmessagetemplates(){
+
+        return messageTemplateservice.getAllMessageTemplate();
+    }
+    
 
     
 }

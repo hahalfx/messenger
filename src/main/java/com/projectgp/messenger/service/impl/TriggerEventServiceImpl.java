@@ -1,5 +1,7 @@
 package com.projectgp.messenger.service.impl;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,11 @@ public class TriggerEventServiceImpl extends ServiceImpl<TriggerEventMapper, Tri
     @Override
     public TriggerEvent getTriggerEventById(long Id) {
         return triggerEventMapper.selectById(Id);
+    }
+
+    @Override
+    public ArrayList<TriggerEvent> getAllTriggerEvent() {
+        return (ArrayList<TriggerEvent>)triggerEventMapper.selectList(null);
     }
     
 }

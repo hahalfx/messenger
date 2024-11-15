@@ -1,5 +1,7 @@
 package com.projectgp.messenger.service;
 
+import java.util.ArrayList;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.projectgp.messenger.model.MessageTemplate;
 
@@ -14,5 +16,7 @@ public interface MessageTemplateService extends IService<MessageTemplate> {
     public void updateMessageTemplate(MessageTemplate messageTemplate);
     // 查询消息模版
     public MessageTemplate getMessageTemplateById(long Id);
+
+    public ArrayList<MessageTemplate> getAllMessageTemplate();
     
 }
