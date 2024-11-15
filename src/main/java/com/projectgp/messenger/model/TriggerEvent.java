@@ -1,50 +1,60 @@
 package com.projectgp.messenger.model;
 
-import org.springframework.stereotype.Repository;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-//任务类实体
-@Repository
-public class TriggerEvent {
-    private String sender;
-    private String receiver;
-    private String method;
-    private String content;
-    private String template;
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-    public  void setSender(String sender) {
-        this.sender = sender;
-    }
-    public String getSender() {
-        return sender ;
-    }
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-    public String getReceiver() {
-        return receiver ;
-    }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@TableName("trigger_events") // 指定对应的数据库表名
+public class TriggerEvent implements Serializable {
 
-    public void setMethod(String method) {
-         this.method = method;
-    }
-    public String getMethod() {
-        return method ;
-     }
+    private static final long serialVersionUID = 1L;
 
-    public void setContent(String content){
-         this.content  = content;
-    }
-    public String getContent(){
-        return content ;
-      }
-    
-    public void setTemplate(String template){
-        this.template = template;
-        
-    }
-    public String getTemplate() {
-        return template ;
-      }
+    /**
+     * 事件ID，主键，自动生成
+     */
+    @TableId(value = "event_id", type = IdType.AUTO)
+    private Long eventId;
 
+    /**
+     * 事件类型
+     */
+    private String eventType;
+
+    /**
+     * 事件数据，JSON格式
+     */
+    @TableField(value = "event_data")
+    private String eventData;
+
+    /**
+     * 触发时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime triggerTime;
+
+    /**
+     * 关联的任务ID
+     */
+    private Long taskId;
+
+    /**
+     * 创建时间
+     */
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    /**
+     * 更新时间
+     */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 }
