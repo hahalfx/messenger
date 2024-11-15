@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 //任务类实体
 @Repository
-public class Task {
+public class TriggerEvent {
     private String sender;
     private String receiver;
     private String method;
