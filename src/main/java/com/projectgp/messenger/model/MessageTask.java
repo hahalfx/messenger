@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +38,10 @@ public class MessageTask implements Serializable {
      * 发送渠道
      */
     private String deliveryChannel;
+
+    //通过一个消息任务相同信息多渠道发送
+    @TableField(exist = false)
+    private List<String> channelList;
 
     //Map格式的发送者信息
     @TableField(exist = false)
@@ -140,7 +145,7 @@ public class MessageTask implements Serializable {
 
     //attributeJson字符串反序列化为 Map
     public Map<String, Object> getAttribute() {
-		if (this.attribute == null && attributeJson != null) {
+		if (this.attribute == null && this.attributeJson != null) {
 			this.attribute = JSONConverter.deserializeJsonStringtoMap(this.attributeJson);
         }
     	return this.attribute;
@@ -149,9 +154,22 @@ public class MessageTask implements Serializable {
     //将 attribute Map序列化为 JSON字符串
     public void setAttribute(Map<String, Object> attribute) {
         this.attribute = attribute;
-        if (this.attribute != null &&  this.attributeJson == null ){
-            this.attributeJson  = JSONConverter.serializeMaptoJsonString(attribute);
-         }
+        this.attributeJson  = JSONConverter.serializeMaptoJsonString(attribute);
     }
+
+    //将deliverchannel字符串反序列化为List<String>
+    public List<String> getchannelList() {
+        if (this.channelList  == null && this.deliveryChannel != null) {
+            channelList = JSONConverter.deserializeJsonStringtoList(this.deliveryChannel);
+         }
+    	return this.channelList;
+    }
+
+    //将channellist List<String>序列化为字符串
+    public void setchannelList(List<String> channelList)  {
+        this.channelList = channelList;
+        this.deliveryChannel = JSONConverter.serializeListtoJsonString(channelList);
+    }
+
 
 }

@@ -132,6 +132,55 @@ com.example.notification
 
 
 
+## 数据库表
+
+### 消息模版表
+
+| 属性名      | 类型     | 是否为主键 | 是否必须 | 是否唯一 | 详情                       |
+| ----------- | -------- | ---------- | -------- | -------- | -------------------------- |
+| id          | Bigint   | 是         | 是       | 是       |                            |
+| name        | varchar  |            |          |          |                            |
+| type        | varchar  | 否         | 是       | 否       | 描述消息类型               |
+| subject     | varchar  | 否         | 是       | 否       | 描述消息的主题或标题       |
+| content     | text     | 否         | 是       | 否       | 存储消息的具体内容         |
+| placeholder | Json     |            |          |          | 消息内容中的占位符         |
+| create_at   | datetime | 否         | 是       | 否       | 创建时间                   |
+| create_user | varchar  | 否         | 是       | 否       | 创建用户ID                 |
+| update_at   | datetime | 否         | 是       | 否       | 修改时间                   |
+| update_user | varchar  | 否         | 是       | 否       | 修改用户                   |
+| status      | varchar  | 否         | 是       | 否       | 有草稿、活动、停用三种状态 |
+
+### 消息任务表
+
+| 属性名                | 类型        | 是否为主键 | 是否必须 | 是否唯一 | 详情                                              |
+| --------------------- | ----------- | ---------- | -------- | -------- | ------------------------------------------------- |
+| imessaged             | varchar     | 是         | 是       | 是       | 任务ID                                            |
+| task_name             | varchar     | 否         | 否       | 否       | 任务名                                            |
+| delivery_channel      | varchar     | 否         | 否       | 否       | 消息应该通过的发送渠道                            |
+| sender_recipient      | json        | 否         | 否       | 否       | 用户的手机  邮箱  站内id                          |
+| receier_query         | varchar     | 否         | 是       | 否       | 查询接受者的条件  接口名                          |
+| recseiver_information | json        | 否         | 否       | 否       | 接收者信息，有可能是手机、邮箱等                  |
+| template_id           | INT         | 否         | 否       | 否       | 关联的消息模板ID，外键。                          |
+| time_type             | String      | 否         | 是       | 否       | IMMEDIATE, SCHEDULED                              |
+| send_time             | DATETIME    | 否         | 是       | 否       | 计划发送时间。                                    |
+| actual_send_time      | DATETIME    | 否         | 否       | 否       | 实际发送时间。                                    |
+| status                | VARCHAR(50) | 否         | 否       | 否       | 消息的发送状态，如“pending”, “sent”, “failed”等。 |
+| created_at            | DATETIME    | 否         | 是       | 否       | 记录任务创建的时间。                              |
+| updated_at            | DATETIME    | 否         | 否       | 否       | 记录任务最后一次更新的时间。                      |
+| ALIVE                 |             | 否         | 是       | 否       | 消息任务的存活状态                                |
+
+ ### 触发事件表
+
+| 字段名       | 数据类型    | 是否为主键 | 是否必须 | 是否唯一 | 描述                                            |
+| ------------ | ----------- | ---------- | -------- | -------- | ----------------------------------------------- |
+| event_id     | INT         | 是         | 是       | 是       | 事件的唯一标识符。                              |
+| event_type   | VARCHAR(50) | 否         | 是       | 否       | 事件的类型，如“user_signup”、“order_placed”等。 |
+| event_data   | JSON        | 否         | 是       | 否       | 事件的相关数据，存储为JSON格式。                |
+| trigger_time | DATETIME    | 否         | 是       | 否       | 事件触发的时间。                                |
+| task_id      | INT         | 否         | 否       | 否       | 关联的消息任务ID，外键。                        |
+| created_at   | DATETIME    | 否         | 是       | 否       | 记录任务创建的时间。                            |
+| updated_at   | DATETIME    | 否         | 否       | 否       | 记录任务最后一次更新的时间。                    |
+
 ## RabbitMQ
 
 | 队列名      | 绑定键      |
