@@ -1,6 +1,5 @@
 package com.projectgp.messenger.service.SendingPlatform;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -20,19 +19,16 @@ public class EmailPlatform {
         Map<String, Object> sender = (Map<String, Object>)messageTask.getSenderRecipient().get("sender");
         String senderName = (String) sender.get("name");
         System.out.println("消息发送者：" + senderName);
-        Integer senderEmail = (Integer) sender.get("email");
+        String senderEmail = (String) sender.get("email");
         System.out.println("消息发送者："+ senderEmail);
         //提取接收者信息
-        Map<String, Object> reciever = (Map<String, Object>)messageTask.getReceiverInformation().get("reciever");
-        String recieverName =  (String) reciever.get("name");
-        System.out.println("消息接收者："+ recieverName);
-        Integer recieverEmail =  (Integer) reciever.get("email");
-        System.out.println("消息接收者：" + recieverEmail);
+        Map<String, Object> receiver = (Map<String, Object>)messageTask.getReceiverInformation().get("receiver");
+        String receiverName =  (String) receiver.get("name");
+        System.out.println("消息接收者："+ receiverName);
+        String receiverEmail =  (String) receiver.get("email");
+        System.out.println("消息接收者：" + receiverEmail);
         //提取消息内容
         String content = messageTask.getContent();
         System.out.println("消息内容："+ content);
-        // 发送短信
-        //将消息发送时间保存到数据库
-        //task.setActualSendTime(LocalDateTime.now());
     }
 }

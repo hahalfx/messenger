@@ -1,6 +1,7 @@
 package com.projectgp.messenger.model;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projectgp.messenger.config.JSONConverter;
 
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class MessageTask implements Serializable {
     /**
      * 任务ID，主键
      */
-    @TableId(value = "task_id",type = IdType.AUTO)
+    @TableId(value = "task_id", type = IdType.AUTO)
     private Long taskId;
 
     /**
@@ -39,11 +40,11 @@ public class MessageTask implements Serializable {
      */
     private String deliveryChannel;
 
-    //通过一个消息任务相同信息多渠道发送
+    // 通过一个消息任务相同信息多渠道发送
     @TableField(exist = false)
     private List<String> channelList;
 
-    //Map格式的发送者信息
+    // Map格式的发送者信息
     @TableField(exist = false)
     private Map<String, Object> senderRecipient;
 
@@ -52,7 +53,7 @@ public class MessageTask implements Serializable {
      */
     private String receiverQuery;
 
-    //Map格式的接受者信息
+    // Map格式的接受者信息
     @TableField(exist = false)
     private Map<String, Object> receiverInformation;
 
@@ -69,6 +70,7 @@ public class MessageTask implements Serializable {
     /**
      * 发送时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime sendTime;
 
     /**
@@ -98,23 +100,30 @@ public class MessageTask implements Serializable {
      */
     private String alive = "YES";
 
-    //消息内容
+    // 消息内容
     private String content;
 
-    //数据库中Json字符串形式的模版消息的参数
+    // 数据库中Json字符串形式的模版消息的参数
     @TableField("attribute")
     private String attributeJson;
 
-    //Map格式的消息模版参数
+    // Map格式的消息模版参数
     @TableField(exist = false)
     private Map<String, Object> attribute;
 
-    //数据库Json字符串形式的发送者和接收者信息
+    // 数据库Json字符串形式的发送者和接收者信息
     @TableField("sender_recipient")
     private String senderRecipientJson;
 
     @TableField("receiver_information")
     private String receiverInformationJson;
+
+    @JsonIgnore
+    @TableField(exist = false)
+    private String cronExpression; // 用于循环任务的 Cron 表达式
+
+    private Integer repeatInterval; // 用于循环任务的间隔（分钟）
+    private Integer repeatCount; // 重复次数，-1 表示无限次
 
     // 将 senderRecipient 序列化为 JSON 字符串
     public void setSenderRecipient(Map<String, Object> senderRecipient) {
@@ -129,6 +138,7 @@ public class MessageTask implements Serializable {
         }
         return this.senderRecipient;
     }
+
     // 将 receiverInformation 序列化为 JSON 字符串
     public void setReceiverInformation(Map<String, Object> receiverInformation) {
         this.receiverInformation = receiverInformation;
@@ -143,33 +153,68 @@ public class MessageTask implements Serializable {
         return this.receiverInformation;
     }
 
-    //attributeJson字符串反序列化为 Map
+    // attributeJson字符串反序列化为 Map
     public Map<String, Object> getAttribute() {
-		if (this.attribute == null && this.attributeJson != null) {
-			this.attribute = JSONConverter.deserializeJsonStringtoMap(this.attributeJson);
+        if (this.attribute == null && this.attributeJson != null) {
+            this.attribute = JSONConverter.deserializeJsonStringtoMap(this.attributeJson);
         }
-    	return this.attribute;
-	}
+        return this.attribute;
+    }
 
-    //将 attribute Map序列化为 JSON字符串
+    // 将 attribute Map序列化为 JSON字符串
     public void setAttribute(Map<String, Object> attribute) {
         this.attribute = attribute;
-        this.attributeJson  = JSONConverter.serializeMaptoJsonString(attribute);
+        this.attributeJson = JSONConverter.serializeMaptoJsonString(attribute);
     }
 
-    //将deliverchannel字符串反序列化为List<String>
+    // 将deliverchannel字符串反序列化为List<String>
     public List<String> getchannelList() {
-        if (this.channelList  == null && this.deliveryChannel != null) {
+        if (this.channelList == null && this.deliveryChannel != null) {
             channelList = JSONConverter.deserializeJsonStringtoList(this.deliveryChannel);
-         }
-    	return this.channelList;
+        }
+        return this.channelList;
     }
 
-    //将channellist List<String>序列化为字符串
-    public void setchannelList(List<String> channelList)  {
+    // 将channellist List<String>序列化为字符串
+    public void setchannelList(List<String> channelList) {
         this.channelList = channelList;
         this.deliveryChannel = JSONConverter.serializeListtoJsonString(channelList);
     }
 
+    public void setCronExpression(LocalDateTime sendTime) {
+        if (this.timeType.equals("SCHEDULED") || this.timeType.equals("CYCLED")) {
+            if (this.cronExpression == null && sendTime != null) {
+                cronExpression = convertToCron(sendTime);
+            }
+        }
+    }
+
+    public String getCronExpression() {
+        if (this.timeType.equals("SCHEDULED") || this.timeType.equals("CYCLED")) {
+            if (this.cronExpression == null && sendTime != null) {
+                cronExpression = convertToCron(sendTime);
+            }
+        }
+        return this.cronExpression;
+    }
+
+    public static String convertToCron(LocalDateTime dateTime) {
+        // 提取时间字段
+        int second = dateTime.getSecond();
+        int minute = dateTime.getMinute();
+        int hour = dateTime.getHour();
+        int day = dateTime.getDayOfMonth();
+        int month = dateTime.getMonthValue();
+    
+        // 格式化为 CRON 表达式：秒 分 时 日 月 星期
+        String cronExpression = String.format("%d %d %d %d %d ?",
+                second,
+                minute,
+                hour,
+                day,
+                month);
+    
+        return cronExpression;
+    }
 
 }

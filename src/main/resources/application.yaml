@@ -4,6 +4,23 @@ spring:
     username: root
     password: zczc8888
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always  # 如果 Quartz 表已经存在，设置为 never；如果需要自动创建表，设置为 always
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: MyScheduler
+          threadPool:
+            threadCount: 10
+          jobStore:
+            useProperties: false
+            dataSource: quartzDataSource
+            tablePrefix: QRTZ_
+            isClustered: true
   
   rabbitmq:
     host: localhost

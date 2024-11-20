@@ -1,9 +1,5 @@
 package com.projectgp.messenger.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,13 +24,7 @@ public class MessageTaskController {
     @PostMapping("/initial")
     public MessageTask initialMessageTask(@ModelAttribute MessageTask messageTask) {
 
-        // 实现请求消息参数的检查
-        @SuppressWarnings("unchecked")
-        Map<String, Object> receiver = (Map<String, Object>) messageTask.getReceiverInformation().get("receiver");
-        String receiverName = (String) receiver.get("name");
-        Integer receiverPhoneNumber = (Integer) receiver.get("phone");
-        String receiverEmail = (String) receiver.get("email");
-        System.out.println(receiverName + ":" + receiverPhoneNumber + ":" + receiverEmail);
+        messageTasksService.requestCheck(messageTask);
 
         return messageTask;
     }
@@ -46,9 +36,11 @@ public class MessageTaskController {
         //检查请求
         if(result == "NoMissingAttribute")
         {
+            MessageTask newmessageTask;
             messageTasksService.createMessageTask(messageTask);
             //判断是否立即发送
-            messageTasksService.taskCheck(messageTask);
+            newmessageTask = messageTasksService.getMessageTaskById(messageTask.getTaskId());
+            messageTasksService.AddTasktoscheduler(newmessageTask);
             return "New Task has been successfully Created with id:"+ messageTask.getTaskId();
         }
         else

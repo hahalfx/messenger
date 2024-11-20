@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.projectgp.messenger.mapper.MessageTaskMapper;
 import com.projectgp.messenger.model.MessageTask;
+import com.projectgp.messenger.service.MessageSchedulerService;
 import com.projectgp.messenger.service.MessageSendService;
 import com.projectgp.messenger.service.MessageTaskService;
 
@@ -24,6 +27,9 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
     @Autowired
     public MessageSendService messageSendService;
 
+    @Autowired
+    private MessageSchedulerService quartzSchedulerService;
+
     @Override
     public void createMessageTask(MessageTask messageTask) {
         // 保存消息任务到数据库中
@@ -33,19 +39,43 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
     @Override
     public void deleteMessageTask(long Id) {
         messageTaskMapper.deleteById(Id);
+        //删除任务调度器中的任务
+        try {
+            quartzSchedulerService.deleteMessageTask(Id);
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteMessageTasks(long[] Ids) {
+        for(long id : Ids){
+            try {
+                quartzSchedulerService.deleteMessageTask(id);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
         List<Long> taskIds = Arrays.stream(Ids)
                 .boxed()
                 .collect(Collectors.toList());
         messageTaskMapper.deleteByIds(taskIds);
+        
     }
 
     @Override
     public void updateMessageTask(MessageTask messageTask) {
         messageTaskMapper.updateById(messageTask);
+        try {
+            quartzSchedulerService.deleteMessageTask(messageTask.getTaskId());
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+        try {
+            quartzSchedulerService.scheduleMessageTask(getMessageTaskById(messageTask.getTaskId()));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -54,17 +84,19 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
     }
 
     @Override
-    public void taskCheck(MessageTask messageTask) {
-        //
-
-        // 判断是否为立即发送
-        if (messageTask.getTimeType().equals("IMMEDIATE")) {
-            // 调用消息发送服务
-            System.out.println("调用了消息发送服务");
-            // 发送消息同时更新Task信息到数据库中
-            MessageTask updatedTask = messageSendService.sendMessage(messageTask);
-            updateMessageTask(updatedTask);
+    public void AddTasktoscheduler(MessageTask messageTask) {
+        // 调度任务
+        try {
+            quartzSchedulerService.scheduleMessageTask(messageTask);
+        } catch (SchedulerException e) {
+            // 处理调度异常
+            e.printStackTrace();
         }
+    }
+
+    public void updateAliveToNo(long taskId) {
+        // 更新数据库 ALIVE 属性为 null
+        messageTaskMapper.updateAliveToNo(taskId);
     }
 
     @SuppressWarnings("unchecked")
@@ -88,7 +120,7 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
                 missingAttributes.add("Sender");
             } else {
                 String senderName = (String) sender.get("name");
-                String senderPhoneNumber = (String) sender.get("phone");
+                Integer senderPhoneNumber = (Integer) sender.get("phone");
                 String senderEmail = (String) sender.get("email");
 
                 if (isNullOrEmpty(senderName)) {
@@ -98,7 +130,7 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
                 if (messageTask.getchannelList() != null) {
                     for (String channel : messageTask.getchannelList()) {
                         if ("sms".equalsIgnoreCase(channel)) {
-                            if (isNullOrEmpty(senderPhoneNumber)) {
+                            if (senderPhoneNumber == null || senderPhoneNumber == 0) {
                                 missingAttributes.add("SenderPhoneNumber");
                             }
                         } else if ("email".equalsIgnoreCase(channel)) {
@@ -124,8 +156,10 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
                 missingAttributes.add("Receiver");
             } else {
                 String receiverName = (String) receiver.get("name");
-                String receiverPhoneNumber = (String) receiver.get("phone");
+                Integer receiverPhoneNumber = (Integer) receiver.get("phone");
                 String receiverEmail = (String) receiver.get("email");
+
+                System.out.println(receiverName + "\n" + receiverEmail + "\n" + receiverPhoneNumber);
 
                 if (isNullOrEmpty(receiverName)) {
                     missingAttributes.add("ReceiverName");
@@ -134,7 +168,7 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
                 if (messageTask.getchannelList() != null) {
                     for (String channel : messageTask.getchannelList()) {
                         if ("sms".equalsIgnoreCase(channel)) {
-                            if (isNullOrEmpty(receiverPhoneNumber)) {
+                            if (receiverPhoneNumber == null || receiverPhoneNumber == 0) {
                                 missingAttributes.add("ReceiverPhoneNumber");
                             }
                         } else if ("email".equalsIgnoreCase(channel)) {
@@ -163,17 +197,77 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
             missingAttributes.add("TimeType");
         }
 
+        if(messageTask.getTimeType().equalsIgnoreCase("CYCLED")){
+            if(messageTask.getRepeatCount() == null){
+                missingAttributes.add( "RepeatCount");
+            }
+            if(messageTask.getRepeatInterval()==null){
+                missingAttributes.add("RepeatInterval");
+            }
+        }
+
+        if("SCHEDULED".equalsIgnoreCase(messageTask.getTimeType())){
+            if(messageTask.getSendTime() == null){
+                missingAttributes.add( "SendTime");
+            }
+        }
+
         // 返回结果
         if (missingAttributes.isEmpty()) {
             return "NoMissingAttribute";
         } else {
             return "MissingAttribute: " + String.join(", ", missingAttributes);
         }
+        
     }
 
     // 辅助方法：检查字符串是否为 null 或空
     private boolean isNullOrEmpty(String str) {
         return str == null || str.trim().isEmpty();
+    }
+
+    //获取所有激活的循环或者定时任务
+    @Override
+    public List<MessageTask> getAllActiveTasks() {
+        LambdaQueryWrapper<MessageTask> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MessageTask::getAlive, "YES")
+                    .eq(MessageTask::getTimeType, "SCHEDULED")
+                    .or()
+                    .eq(MessageTask::getAlive, "YES")
+                    .eq(MessageTask::getTimeType, "CYCLED"); // 查询条件：ALIVE = 'YES'
+
+        // 查询结果
+        return messageTaskMapper.selectList(queryWrapper);
+    }
+
+    //暂停消息任务
+    @Override
+    public void pauseMessageTask(long[] Ids) {
+        for(long id : Ids){
+            MessageTask messageTask = getMessageTaskById(id);
+            messageTask.setAlive("NO");
+            updateMessageTask(messageTask);
+            try {
+                quartzSchedulerService.pauseMessageTask(id);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //恢复消息任务
+    @Override
+    public void resumeMessageTask(long[] Ids) {
+        for(long id : Ids){
+            MessageTask messageTask = getMessageTaskById(id);
+            messageTask.setAlive("YES");
+            updateMessageTask(messageTask);
+            try {
+                quartzSchedulerService.resumeMessageTask(id);
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

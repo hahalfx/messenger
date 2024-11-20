@@ -1,7 +1,5 @@
 package com.projectgp.messenger.service.SendingPlatform;
 
-import java.time.LocalDateTime;
-
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
