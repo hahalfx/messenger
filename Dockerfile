@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # 第二阶段：运行阶段
-FROM openjdk:21-jdk-alpine
+FROM registry.cn-chengdu.aliyuncs.com/library/openjdk:21-jdk-alpine
 WORKDIR /app
 
 # 将构建阶段的 JAR 文件复制到运行阶段
