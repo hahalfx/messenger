@@ -28,7 +28,7 @@ FROM openjdk:21
 WORKDIR /app
 
 # 复制构建阶段的 JAR 文件
-COPY --from=build /app/target/messenger-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /messenger/target/messenger-0.0.1-SNAPSHOT.jar app.jar
 
 # 暴露应用程序运行的端口
 EXPOSE 8080
