@@ -34,7 +34,6 @@ public class MessageJob implements Job {
             try {
                 // 执行发送消息的逻辑
                 messageSendService.sendMessage(messagetask);
-                messageTaskService.updateMessageTask(messagetask);
                 logger.info("成功发送任务 ID 为 {} 的消息。", taskId);
             } catch (Exception e) {
                 logger.error("发送任务 ID 为 {} 的消息时发生异常。", taskId, e);

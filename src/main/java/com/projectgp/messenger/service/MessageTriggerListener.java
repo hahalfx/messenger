@@ -56,6 +56,8 @@ public class MessageTriggerListener implements TriggerListener {
             messageTaskMapper.updateAliveToNo(taskId);
             // 更新任务实际发送时间
             messageTaskMapper.updateActualSendTime(taskId, LocalDateTime.now());
+            // 更新任务状态
+            messageTaskMapper.updateStatusToSent(taskId);
             logger.info("Task with ID {} completed and ALIVE set to NO.", taskId);
         } else {
             logger.warn("Task ID is null, unable to update ALIVE status.");

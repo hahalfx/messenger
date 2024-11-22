@@ -19,4 +19,7 @@ public interface MessageTaskMapper extends BaseMapper<MessageTask> {
 
     @Update("UPDATE message_tasks SET actual_send_time = #{actualSendTime} WHERE task_id = #{taskId}")
     int updateActualSendTime(@Param("taskId") Long taskId, @Param("actualSendTime") LocalDateTime actualSendTime);
+
+    @Update("UPDATE message_tasks SET status = 'SENT' WHERE task_id = #{taskId}")
+    int updateStatusToSent(@Param("taskId") Long taskId);
 }

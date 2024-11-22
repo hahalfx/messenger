@@ -110,7 +110,8 @@ public class MessageSendServiceImpl implements MessageSendService {
                 try {
                     renderTaskContent(messageTask);
                 } catch (Exception e) {
-                    logger.error("实例化消息模版内容失败，任务ID: {}", messageTask.getTaskId(), "模版ID:{}", messageTask.getTemplateId(),
+                    logger.error("实例化消息模版内容失败，任务ID: {}", messageTask.getTaskId(), "模版ID:{}",
+                            messageTask.getTemplateId(),
                             e);
                     throw new RuntimeException("消息模版实例化失败", e);
                 }
@@ -124,22 +125,16 @@ public class MessageSendServiceImpl implements MessageSendService {
                 logger.error("消息任务实体转换信息失败", e);
                 throw new RuntimeException("消息任务实体转换信息失败", e);
             }
-            try {
-                // 根据channelList中的队列名，发送到多个队列
-                for (String channel : messageTask.getchannelList()) {
-                    String routingKey = "send." + channel;
-                    System.out.println("发送消息任务到" + routingKey);
-                    // 例如 "send.feishu"
-                    // 将消息发送到MQ的交换器
-                    rabbitTemplate.convertAndSend(exchangeName, routingKey, messageTask);
-                }
-            } catch (Exception e) {
-                logger.error("发送消息到消息队列", e);
-                throw new RuntimeException("发送消息到消息队列", e);
+            // 根据channelList中的队列名，发送到多个队列
+            for (String channel : messageTask.getchannelList()) {
+                String routingKey = "send." + channel;
+                System.out.println("发送消息任务到" + routingKey);
+                // 例如 "send.feishu"
+                // 将消息发送到MQ的交换器
+                rabbitTemplate.convertAndSend(exchangeName, routingKey, messageTask);
             }
             // 更新消息任务参数
             messageTask.setStatus("SENDED");
-            messageTask.setActualSendTime(LocalDateTime.now());
             // 返回一整个Task对象
             return messageTask;
         } catch (Exception e) {
