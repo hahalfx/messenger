@@ -16,27 +16,130 @@
 1. 包结构
 
 ```
-com.example.notification
-├── controller
-│   ├── MessageTemplateController.java
-│   ├── TriggerEventController.java
-│   └── MessageSendController.java
-├── service
-│   ├── MessageTemplateService.java
-│   ├── TriggerEventService.java
-│   └── MessageSendService.java
-├── repository
-│   ├── MessageTemplateRepository.java
-│   ├── TriggerEventRepository.java
-│   └── UserPreferencesRepository.java
-├── model
-│   ├── MessageTemplate.java
-│   ├── TriggerEvent.java
-│   └── UserPreference.java
-├── config
-│   └── FunctionComputeConfig.java
-└── utils
-    └── MessageFormatter.java
+.
+├── Dockerfile
+├── HELP.md
+├── MD
+│   └── 在一个完整的消息通告（Messaging Notification）Spring Boot微服务架构中，集成阿里云函数计算（Function Compute, FC）同时使用数据库和RabbitMQ，可以显著提升系统的可扩展性、弹性和响应速.md
+├── README.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── projectgp
+│   │   │           └── messenger
+│   │   │               ├── MessengerApplication.java
+│   │   │               ├── config
+│   │   │               │   ├── JSONConverter.java
+│   │   │               │   ├── MyMetaObjectHandler.java
+│   │   │               │   ├── RabbitMQConfig.java
+│   │   │               │   └── StartupTaskLoader.java
+│   │   │               ├── controller
+│   │   │               │   ├── MessageTaskController.java
+│   │   │               │   ├── MessageTemplateController.java
+│   │   │               │   └── TriggerEventController.java
+│   │   │               ├── mapper
+│   │   │               │   ├── MessageTaskMapper.java
+│   │   │               │   ├── MessageTemplateMapper.java
+│   │   │               │   └── TriggerEventMapper.java
+│   │   │               ├── model
+│   │   │               │   ├── MessageJob.java
+│   │   │               │   ├── MessageTask.java
+│   │   │               │   ├── MessageTemplate.java
+│   │   │               │   └── TriggerEvent.java
+│   │   │               └── service
+│   │   │                   ├── MessageSchedulerService.java
+│   │   │                   ├── MessageSendService.java
+│   │   │                   ├── MessageTaskService.java
+│   │   │                   ├── MessageTemplateService.java
+│   │   │                   ├── MessageTriggerListener.java
+│   │   │                   ├── TriggerEventService.java
+│   │   │                   └── impl
+│   │   │                       ├── MessageSendServiceImpl.java
+│   │   │                       ├── MessageTaskServiceImpl.java
+│   │   │                       ├── MessageTemplateServiceImpl.java
+│   │   │                       └── TriggerEventServiceImpl.java
+│   │   └── resources
+│   │       ├── SQL.txt
+│   │       ├── application.properties
+│   │       ├── application.yaml
+│   │       ├── static
+│   │       └── templates
+│   └── test
+│       └── java
+│           └── com
+│               └── projectgp
+│                   └── messenger
+│                       └── MessengerApplicationTests.java
+└── target
+    ├── classes
+    │   ├── SQL.txt
+    │   ├── application.properties
+    │   ├── application.yaml
+    │   └── com
+    │       └── projectgp
+    │           └── messenger
+    │               ├── MessengerApplication.class
+    │               ├── config
+    │               │   ├── JSONConverter$1.class
+    │               │   ├── JSONConverter$2.class
+    │               │   ├── JSONConverter.class
+    │               │   ├── MyMetaObjectHandler.class
+    │               │   ├── RabbitMQConfig.class
+    │               │   └── StartupTaskLoader.class
+    │               ├── controller
+    │               │   ├── MessageTaskController.class
+    │               │   ├── MessageTemplateController.class
+    │               │   └── TriggerEventController.class
+    │               ├── mapper
+    │               │   ├── MessageTaskMapper.class
+    │               │   ├── MessageTemplateMapper.class
+    │               │   └── TriggerEventMapper.class
+    │               ├── model
+    │               │   ├── MessageJob.class
+    │               │   ├── MessageTask.class
+    │               │   ├── MessageTemplate.class
+    │               │   └── TriggerEvent.class
+    │               └── service
+    │                   ├── MessageSchedulerService.class
+    │                   ├── MessageSendService.class
+    │                   ├── MessageTaskService.class
+    │                   ├── MessageTemplateService.class
+    │                   ├── MessageTriggerListener.class
+    │                   ├── TriggerEventService.class
+    │                   └── impl
+    │                       ├── MessageSendServiceImpl.class
+    │                       ├── MessageTaskServiceImpl.class
+    │                       ├── MessageTemplateServiceImpl.class
+    │                       └── TriggerEventServiceImpl.class
+    ├── generated-sources
+    │   └── annotations
+    ├── generated-test-sources
+    │   └── test-annotations
+    ├── maven-archiver
+    │   └── pom.properties
+    ├── maven-status
+    │   └── maven-compiler-plugin
+    │       ├── compile
+    │       │   └── default-compile
+    │       │       ├── createdFiles.lst
+    │       │       └── inputFiles.lst
+    │       └── testCompile
+    │           └── default-testCompile
+    │               ├── createdFiles.lst
+    │               └── inputFiles.lst
+    ├── messenger-0.0.1-SNAPSHOT.jar
+    ├── messenger-0.0.1-SNAPSHOT.jar.original
+    └── test-classes
+        └── com
+            └── projectgp
+                └── messenger
+                    └── MessengerApplicationTests.class
+
+48 directories, 74 files
 ```
 
 

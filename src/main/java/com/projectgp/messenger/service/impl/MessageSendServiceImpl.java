@@ -1,5 +1,6 @@
 package com.projectgp.messenger.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,8 +50,9 @@ public class MessageSendServiceImpl implements MessageSendService {
 
     /**
      * 验证模板中的占位符是否与变量映射匹配
+     * 
      * @param templateContent 模板内容
-     * @param variables 变量映射
+     * @param variables       变量映射
      * @throws IllegalArgumentException 如果存在缺失变量或多余变量
      */
     public static void validateTemplateParameters(String templateContent, Map<String, Object> variables) {
@@ -90,7 +92,7 @@ public class MessageSendServiceImpl implements MessageSendService {
         // 验证模板参数
         validateTemplateParameters(templateContent, variables);
 
-        //渲染内容
+        // 渲染内容
         String renderedContent = templateContent;
         for (Map.Entry<String, Object> entry : variables.entrySet()) {
             renderedContent = renderedContent.replace("{" + entry.getKey() + "}", entry.getValue().toString());
@@ -101,27 +103,43 @@ public class MessageSendServiceImpl implements MessageSendService {
     // 向RabbitMQ发送消息
     @Override
     public MessageTask sendMessage(MessageTask messageTask) {
-        System.out.println("分配消息到队列中");
         try {
             if (messageTask.getTemplateId() != null) {
                 // 渲染消息内容
                 // attribute参数是一个map，key是占位符，value是参数
-                renderTaskContent(messageTask);
+                try {
+                    renderTaskContent(messageTask);
+                } catch (Exception e) {
+                    logger.error("实例化消息模版内容失败，任务ID: {}", messageTask.getTaskId(), "模版ID:{}", messageTask.getTemplateId(),
+                            e);
+                    throw new RuntimeException("消息模版实例化失败", e);
+                }
             }
             // 发送消息到交换机
             String exchangeName = "MessengerExchange";
-            // 将消息任务实体转序列化作为信息内容发送
-            rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
-            // 根据channelList中的队列名，发送到多个队列
-            for (String channel : messageTask.getchannelList()) {
-                String routingKey = "send." + channel;
-                System.out.println(routingKey + "!");
-                // 例如 "send.feishu"
-                // 将消息发送到MQ的交换器
-                rabbitTemplate.convertAndSend(exchangeName, routingKey, messageTask);
+            try {
+                // 将消息任务实体转序列化作为信息内容发送
+                rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+            } catch (Exception e) {
+                logger.error("消息任务实体转换信息失败", e);
+                throw new RuntimeException("消息任务实体转换信息失败", e);
             }
-            // 设置消息状态为发送中
-            messageTask.setStatus("SENDING");
+            try {
+                // 根据channelList中的队列名，发送到多个队列
+                for (String channel : messageTask.getchannelList()) {
+                    String routingKey = "send." + channel;
+                    System.out.println("发送消息任务到" + routingKey);
+                    // 例如 "send.feishu"
+                    // 将消息发送到MQ的交换器
+                    rabbitTemplate.convertAndSend(exchangeName, routingKey, messageTask);
+                }
+            } catch (Exception e) {
+                logger.error("发送消息到消息队列", e);
+                throw new RuntimeException("发送消息到消息队列", e);
+            }
+            // 更新消息任务参数
+            messageTask.setStatus("SENDED");
+            messageTask.setActualSendTime(LocalDateTime.now());
             // 返回一整个Task对象
             return messageTask;
         } catch (Exception e) {

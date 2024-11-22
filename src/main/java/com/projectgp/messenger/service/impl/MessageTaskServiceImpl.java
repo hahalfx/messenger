@@ -158,9 +158,7 @@ public class MessageTaskServiceImpl extends ServiceImpl<MessageTaskMapper, Messa
                 String receiverName = (String) receiver.get("name");
                 Integer receiverPhoneNumber = (Integer) receiver.get("phone");
                 String receiverEmail = (String) receiver.get("email");
-
-                System.out.println(receiverName + "\n" + receiverEmail + "\n" + receiverPhoneNumber);
-
+                
                 if (isNullOrEmpty(receiverName)) {
                     missingAttributes.add("ReceiverName");
                 }
