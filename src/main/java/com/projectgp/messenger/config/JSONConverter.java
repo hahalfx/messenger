@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.slf4j.Logger;
@@ -22,6 +23,11 @@ public class JSONConverter {
     // ObjectMapper（确保已正确注入或初始化）
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(JSONConverter.class);
+
+    static {
+        // 启用接受单个值作为数组
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+    }
     // Map序列化为Json字符串方法
     public static String serializeMaptoJsonString(Map<String, Object> Maps) {
         try {

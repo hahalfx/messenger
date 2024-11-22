@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://lfxj.cc:3306/messenger?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://172.17.75.168:3306/messenger?useSSL=false&serverTimezone=UTC
     username: root
     password: zczc@8888
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -23,10 +23,10 @@ spring:
             isClustered: true
   
   rabbitmq:
-    host: rabbitmq-serverless-cn-lf640h9ck0m.cn-chengdu.amqp-2.net.mq.amqp.aliyuncs.com
+    host: rabbitmq-serverless-cn-jmp40hr7g0a.cn-hangzhou.amqp-14.vpc.mq.amqp.aliyuncs.com
     port: 5672
-    username: MjpyYWJiaXRtcS1zZXJ2ZXJsZXNzLWNuLWxmNjQwaDljazBtOkxUQUk1dExyVWtkZnhHa0ZNYmg1OFVKdA==
-    password: RDdBRUNBRTdFMDdDQkI0QzM0MUY3RkNFOTYyREY4MDIyNjVGQUE0MzoxNzMyMTc3Nzc4NDQ1
+    username: MjpyYWJiaXRtcS1zZXJ2ZXJsZXNzLWNuLWptcDQwaHI3ZzBhOkxUQUk1dExyVWtkZnhHa0ZNYmg1OFVKdA==
+    password: NTUyQ0I2NkM1ODMxRUE0RjM0NzVGNzlBNjQxN0I0MURDQTA1RDBBRjoxNzMyMjAwNjA5NjQ2
     virtual-host: /
 
 mybatis-plus:
